@@ -5,7 +5,7 @@ import io
 
 app = Flask(__name__)
 # Permite que seu site no GitHub Pages converse com este servidor
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 @app.route('/')
 def home():
@@ -19,9 +19,9 @@ def converter():
     file = request.files['file']
     
     try:
-        # Lê o Excel (Pega a primeira aba por padrão)
-        # O Pandas é muito mais eficiente com memória que o navegador
-        df = pd.read_excel(file)
+        # engine='calamine': Usa Rust para ler o Excel. 
+        # É 5x mais rápido e usa muito menos RAM.
+        df = pd.read_excel(file, engine='calamine')
         
         # Formata colunas de data para dia/mês/ano
         # Ajuste aqui se precisar de formatos específicos
@@ -44,4 +44,5 @@ def converter():
         return f"Erro no processamento: {str(e)}", 500
 
 if __name__ == '__main__':
+
     app.run(host='0.0.0.0', port=5000)
